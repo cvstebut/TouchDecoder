@@ -2,9 +2,8 @@
 
 STATUS: Work in progress - still in early testing stage: 
 - [x] Testing of state machine code without timeout on WSL2
-- [ ] Test decoder without timeout on ESP32
-- [ ] Implement / test timeout
 - [ ] Reject touch/release events below minimum time difference to help with false alarms due to noise on line
+- [ ] Test decoder on ESP32
 - [ ] Implement long touch
 - [ ] Implement single-double touch
 - [ ] Implement single-long touch
