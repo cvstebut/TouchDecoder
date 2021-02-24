@@ -1,4 +1,7 @@
-# Touch decoder for capacitive touch panel based on boost::sml state machine
+# Touch decoder (e.g. detect short, long, double touches) for use with capacitive touch panel (mpr121) based on boost::sml state machine
+
+Note: The decoder is currently hard coded to use an array of 12 state-machines according to the 12 touch pads on common mpr121 boards.
+I was yet not able to initialize the state-machine array using a varialbe array length.
 
 STATUS: Work in progress - still in early testing stage: 
 - [x] Testing of state machine code without timeout on WSL2
