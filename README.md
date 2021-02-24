@@ -2,11 +2,13 @@
 
 STATUS: Work in progress - still in early testing stage: 
 - [x] Testing of state machine code without timeout on WSL2
-- [ ] Reject touch/release events below minimum time difference to help with false alarms due to noise on line
+- [x] Reject touch/release events below minimum time difference to help with false alarms due to noise on line
+- [x] Implement short touch
+- [x] Implement long touch
+- [ ] Implement short-short (double tap) touch
+- [ ] Implement long-short touch
+- [ ] REJECTED: Implement morse code
 - [ ] Test decoder on ESP32
-- [ ] Implement long touch
-- [ ] Implement single-double touch
-- [ ] Implement single-long touch
 - [ ] tbd
 
 Caution: I am still new at C++, so use with caution: You get to keep the pieces ...
