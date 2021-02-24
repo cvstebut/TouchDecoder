@@ -1,55 +1,18 @@
-# C++ Starter Template for CMake
+# Touch decoder for capacitive touch panel based on boost::sml state machine
 
-> Can be used in Visual Studio Code
+STATUS: Work in progress - still in early testing stage: 
+- [x] Testing of state machine code without timeout on WSL2
+- [ ] Test decoder without timeout on ESP32
+- [ ] Implement / test timeout
+- [ ] Reject touch/release events below minimum time difference to help with false alarms due to noise on line
+- [ ] Implement long touch
+- [ ] Implement single-double touch
+- [ ] Implement single-long touch
+- [ ] tbd
 
-Features:
+Caution: I am still new at C++, so use with caution: You get to keep the pieces ...
 
-- [x] Building C++ files using CMake in Visual Studio Code
-- [x] Supports Windows, Mac, and Linux
-- [x] [Catch Test](https://github.com/catchorg/Catch2) for unit tests
-- [x] Debugging with Visual Studio Code to provide breakpoints, watch, call stack, and pretty printing for STL containers such as `std::map` and `std::vector`
+Thanks to
+- Kris Jusiak for the boost::sml library (and with it the requirement to learn more about modern C++ syntax)
+- ourarash for the template to get started with VSCode, CMake and Catch2 (https://github.com/ourarash/cmake-catch-vsc-template.git)
 
-## A Video on how to use this repo:
-
-<table><tr><td>
-
-<a href="https://youtu.be/OXwsD37qHPY">
-<img border="5" alt="C++ Starter Template for CMake & Visual Studio Code with Catch test library" src="https://raw.githubusercontent.com/ourarash/cmake-catch-vsc-template/master/play.png" width="400">
-</a>
-</td></tr></table>
-
-
-You can use this template for most of your C++ projects with minimal changes.
-![Demo picture bottom](https://raw.githubusercontent.com/ourarash/cmake-catch-vsc-template/master/screenshot.gif)
-
-
-## Prerequisite
-
-### Installing CMake
-
-This repo uses `CMake` for building C++ files.
-You can install CMake using this [link](https://cmake.org/download/).
-
-### Installing Toolchain
-
-CMake can detect and work with most toolchains. On Mac, you can install XCode. On Windows, you can use Visual Studio. On Linux, you can use gcc.
-
-### Visual Studio Code Extensions
-If you are using [Visual Studio Code](https://code.visualstudio.com/), you need to install these extensions:
-- [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
-- CMake
-- cmake-format
-
-
-## Cloning this repo
-
-```bash
-git clone https://github.com/ourarash/cmake-catch-vsc-template
-```
-
-## Configuring CMake
-Once CMake and CMake extensions are installed, type the following in the command line:
-
-`CMake: Configure`
-
-This will create a subfolder called `build`. Once you do this, a new button on the left `Activity Bar` in Visual Studio Code will appear which allows you to run and debug the targets.
