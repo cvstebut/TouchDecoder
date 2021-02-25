@@ -1,14 +1,12 @@
 #pragma once
 
-#include <boost/circular_buffer.hpp>
-
 #include <boost/sml.hpp>
 #include <bitset>
-#include <cassert>
 #include <iostream>
-#include <typeinfo>
+#include <vector>
 
 static const int decoderwidth = 12;
+
 struct decoderOutput
 {
   std::bitset<decoderwidth> shortPress{};
@@ -292,24 +290,27 @@ public:
 class TouchDecoder
 {
 public:
-  explicit TouchDecoder() : statemachine(state_machine{touchDecoderTimingConfig{10, 20, 30, 50, 50}}) {}
-  explicit TouchDecoder(touchDecoderTimingConfig);
+  TouchDecoder() : statemachine(state_machine{touchDecoderTimingConfig{10, 20, 30, 50, 50}})
+  {
+    for (int i = 0; i < decoderwidth; i++)
+    {
+      vsm.push_back(new boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime});
+    }
+  }
+
+  TouchDecoder(touchDecoderTimingConfig);
+
+  ~TouchDecoder()
+  {
+    for (int i = 0; i < decoderwidth; i++)
+    {
+      delete vsm[i];
+    }
+  }
 
   state_machine statemachine;
 
-  boost::sml::sm<state_machine> smarray[decoderwidth] = {
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime},
-      boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime}};
+  std::vector<boost::sml::sm<state_machine> *> vsm;
 
   void push(uint16_t touchstate, unsigned long pushTime)
   {
@@ -339,7 +340,7 @@ public:
     {
       if (_touched.test(i))
       {
-        smarray[i].process_event(state_machine::touch_event{i, pushTime});
+        vsm[i]->process_event(state_machine::touch_event{i, pushTime});
       }
     }
 
@@ -347,7 +348,7 @@ public:
     {
       if (_released.test(i))
       {
-        smarray[i].process_event(state_machine::release_event{i, pushTime});
+        vsm[i]->process_event(state_machine::release_event{i, pushTime});
       }
     }
 
@@ -356,7 +357,7 @@ public:
       if (~_released.test(i) && ~_touched.test(i))
       {
         //        std::cout << "Key " << i << " - processing no_event to enable timeout handling without released or touched" << std::endl;
-        smarray[i].process_event(state_machine::no_event{i, pushTime});
+        vsm[i]->process_event(state_machine::no_event{i, pushTime});
       }
     }
     std::cout << "POST-SM - current: " << current
@@ -426,4 +427,10 @@ private:
   // actions
 };
 
-TouchDecoder::TouchDecoder(touchDecoderTimingConfig tc) : statemachine{tc} {}
+TouchDecoder::TouchDecoder(touchDecoderTimingConfig tc) : statemachine{tc}
+{
+  for (int i = 0; i < decoderwidth; i++)
+  {
+    vsm.push_back(new boost::sml::sm<state_machine>{statemachine, state_machine::Touched{0}, output, currentTime});
+  }
+}

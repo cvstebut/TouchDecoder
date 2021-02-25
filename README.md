@@ -2,8 +2,20 @@
 
 The code is being developed and tested on WSL2 (Windows) and targeted for use with an ESP32.
 
-Note: The decoder is currently hard coded to use an array of 12 state-machines representing the 12 touch pads on common mpr121 boards.
-I was yet not able to initialize the state-machine array using a varialbe array length (C++ newbie...). If you know how, please contact me.
+Note: The decoder width (number of touch pads decoded) is set to 12 in the library via ```decoderwidth``` - 12 being the number of touch pads handled by the mpr121 chip.
+
+
+See "touchdecoder.hpp" (top of file):
+```c++
+#pragma once
+
+#include <boost/sml.hpp>
+#include <bitset>
+#include <iostream>
+#include <vector>
+
+static const int decoderwidth = 12;
+```
 
 STATUS: Work in progress - still in early testing stage: 
 - [x] Testing of state machine code without timeout on WSL2
@@ -13,6 +25,7 @@ STATUS: Work in progress - still in early testing stage:
 - [x] Implement short-short (double tap) touch
 - [x] Implement long-short touch
 - [-] REJECTED: Implement morse code
+- [x] Implement dependency of decoder width on single constant ```decoderwidth```
 - [ ] Research and implement proper timing (e.g. timing double mouse click?)
 - [ ] Test decoder on ESP32
 - [ ] (optional) Publish library as a PlatformIO library 
@@ -24,3 +37,9 @@ Thanks to
 - Kris Jusiak for the boost::sml library (and with it the requirement to learn more about modern C++ syntax)
 - ourarash for the template to get started with VSCode, CMake and Catch2 (https://github.com/ourarash/cmake-catch-vsc-template.git)
 
+## Research and implement proper timing
+
+Did not find too many sources, apart from [MSDN - SetDoubleClickTime](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setdoubleclicktime)
+
+-> Will implement some measurement code to get a feel for decent timings
+- measure tap - tap times :-)

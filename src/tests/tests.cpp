@@ -32,6 +32,27 @@ TEST_CASE("Construction with custom timing")
   }
 }
 
+TEST_CASE("decoder - standard timing - release before min time")
+{
+
+  TouchDecoder decoder;
+
+  unsigned long current{};
+
+  decoder.push(1, current);
+  decoder.push(0, current += (decoder.statemachine.tc.minReleaseTime / 2));
+  decoder.push(1, current);
+  decoder.push(0, current += (decoder.statemachine.tc.minReleaseTime / 2));
+  decoder.push(1, current);
+  decoder.push(0, current += (decoder.statemachine.tc.minReleaseTime / 2));
+  SECTION("should disregard both previous touch and current release event and return to idle state")
+  {
+    REQUIRE(decoder.shortPress() == 0);
+  }
+}
+
+
+
 TEST_CASE("decoder - release before min time")
 {
   touchDecoderTimingConfig tc{
