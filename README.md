@@ -10,9 +10,10 @@ STATUS: Work in progress - still in early testing stage:
 - [x] Reject touch/release events below minimum time difference to help with false alarms due to noise on line
 - [x] Implement short touch
 - [x] Implement long touch
-- [ ] Implement short-short (double tap) touch
-- [ ] Implement long-short touch
-- [ ] REJECTED: Implement morse code
+- [x] Implement short-short (double tap) touch
+- [x] Implement long-short touch
+- [-] REJECTED: Implement morse code
+- [ ] Research and implement proper timing (e.g. timing double mouse click?)
 - [ ] Test decoder on ESP32
 - [ ] (optional) Publish library as a PlatformIO library 
 - [ ] tbd

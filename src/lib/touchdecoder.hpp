@@ -16,6 +16,7 @@ struct decoderOutput
   std::bitset<decoderwidth> doubleShortPress{};
   std::bitset<decoderwidth> doubleLongPress{};
   std::bitset<decoderwidth> shortLongPress{};
+  std::bitset<decoderwidth> longShortPress{};
 };
 
 struct touchDecoderTimingConfig
@@ -56,7 +57,12 @@ public:
     unsigned long entry_time{};
   };
 
-  struct TouchedSecond
+  struct TouchedShort
+  {
+    unsigned long entry_time{};
+  };
+
+  struct TouchedLong
   {
     unsigned long entry_time{};
   };
@@ -114,6 +120,68 @@ public:
       return result;
     };
 
+    auto guard_short_min_touch_time = [this](const auto &event, TouchedShort &state) {
+      bool timeout = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff < tc.minReleaseTime)
+      {
+        timeout = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_short_min_touch_time (" << timeDiff << ") = " << timeout << std::endl;
+      return timeout;
+    };
+    auto guard_short_short_press_time = [this](const auto &event, TouchedShort &state) {
+      bool result = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff >= tc.minReleaseTime && timeDiff < tc.shortPressTime)
+      {
+        result = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_short_short_press_time (" << timeDiff << ") = " << result << std::endl;
+      return result;
+    };
+    auto guard_short_long_press_time = [this](const auto &event, TouchedShort &state) {
+      bool result = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff >= tc.longPressTime)
+      {
+        result = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_short_long_press_time (" << timeDiff << ") = " << result << std::endl;
+      return result;
+    };
+
+    auto guard_long_min_touch_time = [this](const auto &event, TouchedLong &state) {
+      bool timeout = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff < tc.minReleaseTime)
+      {
+        timeout = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_long_min_touch_time (" << timeDiff << ") = " << timeout << std::endl;
+      return timeout;
+    };
+    auto guard_long_short_press_time = [this](const auto &event, TouchedLong &state) {
+      bool result = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff >= tc.minReleaseTime && timeDiff < tc.shortPressTime)
+      {
+        result = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_long_short_press_time (" << timeDiff << ") = " << result << std::endl;
+      return result;
+    };
+    auto guard_long_long_press_time = [this](const auto &event, TouchedLong &state) {
+      bool result = false;
+      unsigned long timeDiff = event.event_time - state.entry_time;
+      if (timeDiff >= tc.longPressTime)
+      {
+        result = true;
+      }
+      std::cout << "Key " << event.keyid << " - guard_long_long_press_time (" << timeDiff << ") = " << result << std::endl;
+      return result;
+    };
+
     auto guard_max_idleshort_time = [this](const auto &event, IdleShort &state, unsigned long &currentTime) {
       bool timeout = false;
       unsigned long timeDiff = currentTime - state.entry_time;
@@ -140,6 +208,14 @@ public:
       std::cout << "Key " << event.keyid << " - Transition due to touch_event" << std::endl;
       state.entry_time = event.event_time;
     };
+    const auto touch_short_action = [](const auto &event, TouchedShort &state) {
+      std::cout << "Key " << event.keyid << " - Transition due to touch_short_event" << std::endl;
+      state.entry_time = event.event_time;
+    };
+    const auto touch_long_action = [](const auto &event, TouchedLong &state) {
+      std::cout << "Key " << event.keyid << " - Transition due to touch_long_event" << std::endl;
+      state.entry_time = event.event_time;
+    };
 
     const auto release_to_idle_short = [](decoderOutput &dcOutput, IdleShort &state, const auto &event) {
       std::cout << "Key " << event.keyid << " - Transition due to release_to_idle_short" << std::endl;
@@ -158,23 +234,54 @@ public:
       dcOutput.shortPress.set(state.keyid);
     };
 
+    const auto release_double_short_action = [](decoderOutput &dcOutput, TouchedShort &state, const auto &event) {
+      std::cout << "Key " << event.keyid << " - Transition due to release_double_short_action" << std::endl;
+      dcOutput.doubleShortPress.set(event.keyid);
+    };
+
+    const auto release_short_long_action = [](decoderOutput &dcOutput, TouchedShort &state, const auto &event) {
+      std::cout << "Key " << event.keyid << " - Transition due to release_short_long_action" << std::endl;
+      dcOutput.shortLongPress.set(event.keyid);
+    };
+
     const auto release_long_action = [](decoderOutput &dcOutput, IdleLong &state, const auto &event) {
       std::cout << "Key " << state.keyid << " - Transition due to release_long_action" << std::endl;
       dcOutput.longPress.set(state.keyid);
     };
 
-    const auto timeout_action = [](decoderOutput &dcOutput, const auto &event) {
-      std::cout << "Key " << event.keyid << " - Transition due to timeout_action" << std::endl;
+    const auto release_long_short_action = [](decoderOutput &dcOutput, TouchedLong &state, const auto &event) {
+      std::cout << "Key " << event.keyid << " - Transition due to release_long_short_action" << std::endl;
+      dcOutput.longShortPress.set(event.keyid);
+    };
+
+    const auto release_double_long_action = [](decoderOutput &dcOutput, TouchedLong &state, const auto &event) {
+      std::cout << "Key " << event.keyid << " - Transition due to release_double_long_action" << std::endl;
+      dcOutput.doubleLongPress.set(event.keyid);
+    };
+
+    const auto min_touch_time_cancel_action = [](decoderOutput &dcOutput, const auto &event) {
+      std::cout << "Key " << event.keyid << " - Transition due to min_touch_time_cancel_action" << std::endl;
     };
 
     // clang-format off
     return make_transition_table(
-        * state<Idle>              + event<touch_event>                                  / (touch_action)          = state<Touched>
-        , state<Touched>           + event<release_event>   [guard_min_touch_time]       / (timeout_action)        = state<Idle>
-        , state<Touched>           + event<release_event>   [guard_short_press_time]     / (release_to_idle_short) = state<IdleShort>
-        , state<Touched>           + event<release_event>   [guard_long_press_time]      / (release_to_idle_long)  = state<IdleLong>
-        , state<IdleShort>                                  [guard_max_idleshort_time]   / (release_short_action)  = state<Idle>
-        , state<IdleLong>                                   [guard_max_idlelong_time]    / (release_long_action)   = state<Idle>
+        * state<Idle>          + event<touch_event>                                  / (touch_action)                = state<Touched>
+        , state<Touched>       + event<release_event>   [guard_min_touch_time]       / (min_touch_time_cancel_action)              = state<Idle>
+        , state<Touched>       + event<release_event>   [guard_short_press_time]     / (release_to_idle_short)       = state<IdleShort>
+        , state<Touched>       + event<release_event>   [guard_long_press_time]      / (release_to_idle_long)        = state<IdleLong>
+        , state<IdleShort>                              [guard_max_idleshort_time]   / (release_short_action)        = state<Idle>
+        , state<IdleLong>                               [guard_max_idlelong_time]    / (release_long_action)         = state<Idle>
+
+        , state<IdleShort>     + event<touch_event>                                  / (touch_short_action)               = state<TouchedShort>
+        , state<IdleLong>      + event<touch_event>                                  / (touch_long_action)                = state<TouchedLong>
+
+        , state<TouchedShort>  + event<release_event>   [guard_short_min_touch_time]       / (min_touch_time_cancel_action)              = state<Idle>
+        , state<TouchedShort>  + event<release_event>   [guard_short_short_press_time]     / (release_double_short_action) = state<Idle>
+        , state<TouchedShort>  + event<release_event>   [guard_short_long_press_time]      / (release_short_long_action)   = state<Idle>
+
+        , state<TouchedLong>  + event<release_event>   [guard_long_min_touch_time]       / (min_touch_time_cancel_action)               = state<Idle>
+        , state<TouchedLong>  + event<release_event>   [guard_long_short_press_time]     / (release_long_short_action)    = state<Idle>
+        , state<TouchedLong>  + event<release_event>   [guard_long_long_press_time]      / (release_double_long_action)   = state<Idle>
     );
     // clang-format on
   }
@@ -185,7 +292,7 @@ public:
 class TouchDecoder
 {
 public:
-  explicit TouchDecoder(): statemachine(state_machine{touchDecoderTimingConfig{10, 20, 30, 50, 50}}){}
+  explicit TouchDecoder() : statemachine(state_machine{touchDecoderTimingConfig{10, 20, 30, 50, 50}}) {}
   explicit TouchDecoder(touchDecoderTimingConfig);
 
   state_machine statemachine;
@@ -213,7 +320,17 @@ public:
     // reset output event registers to zero
     output = decoderOutput{};
 
-    std::cout << "PRE-SM  - current: " << current << ", touchstate: " << touchstate << ", _released: " << _released << ", _touched: " << _touched << ", shortPress: " << output.shortPress << ", longPress: " << output.longPress << std::endl;
+    std::cout << "PRE-SM  - current: " << current
+              << ", touchstate: " << touchstate
+              << ", _released: " << _released
+              << ", _touched: " << _touched
+              << ", shortPress: " << output.shortPress
+              << ", longPress: " << output.longPress
+              << ", doubleShort: " << output.doubleShortPress
+              << ", shortLongPress: " << output.shortLongPress
+              << ", longShortPress: " << output.longShortPress
+              << ", doubleLong: " << output.doubleLongPress
+              << std::endl;
 
     current = newState;
     currentTime = pushTime;
@@ -238,11 +355,21 @@ public:
     {
       if (~_released.test(i) && ~_touched.test(i))
       {
-        std::cout << "Key " << i << " - processing no_event to enable timeout handling without released or touched" << std::endl;
+        //        std::cout << "Key " << i << " - processing no_event to enable timeout handling without released or touched" << std::endl;
         smarray[i].process_event(state_machine::no_event{i, pushTime});
       }
     }
-    std::cout << "POST-SM - current: " << current << ", touchstate: " << touchstate << ", _released: " << _released << ", _touched: " << _touched << ", shortPress: " << output.shortPress << ", longPress: " << output.longPress << std::endl;
+    std::cout << "POST-SM - current: " << current
+              << ", touchstate: " << touchstate
+              << ", _released: " << _released
+              << ", _touched: " << _touched
+              << ", shortPress: " << output.shortPress
+              << ", longPress: " << output.longPress
+              << ", doubleShort: " << output.doubleShortPress
+              << ", shortLongPress: " << output.shortLongPress
+              << ", longShortPress: " << output.longShortPress
+              << ", doubleLong: " << output.doubleLongPress
+              << std::endl;
   }
 
   std::bitset<decoderwidth> released()
@@ -274,7 +401,10 @@ public:
   {
     return output.shortLongPress;
   }
-
+  std::bitset<decoderwidth> longShortPress()
+  {
+    return output.longShortPress;
+  }
   int width()
   {
     return decoderwidth;
