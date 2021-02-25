@@ -26,7 +26,7 @@ STATUS: Work in progress - still in early testing stage:
 - [x] Implement long-short touch
 - [-] REJECTED: Implement morse code
 - [x] Implement dependency of decoder width on single constant ```decoderwidth```
-- [ ] Research and implement proper timing (e.g. timing double mouse click?)
+- [x] Research and implement proper timing (e.g. timing double mouse click?)
 - [ ] Test decoder on ESP32
 - [ ] (optional) Publish library as a PlatformIO library 
 - [ ] tbd
@@ -43,3 +43,28 @@ Did not find too many sources, apart from [MSDN - SetDoubleClickTime](https://do
 
 -> Will implement some measurement code to get a feel for decent timings
 - measure tap - tap times :-)
+
+Premilimary testing with my wife and myself:
+
+- tc.minReleaseTime = 30 </br>
+All press times lower than minReleaseTime will be assumed to be caused by electronic noise an be dropped. </br>
+In testing me and my wife were not able to produce faster press times than 38ms. So it seems safe to drop everything below 30ms.
+
+- tc.shortPressTime = 300 </br>
+Every tap between tc.minReleaseTime and tc.shortPressTime will be consired a "short" tap.
+
+    In my home, 300ms seems a reasonable assumption.
+
+- tc.longPressTime = 300 </br>
+A tap longer than tc.longPressTime will be considered a "long" press.
+
+    Everything longer than "short" is considered a "long" press.
+
+- tc.maxIdleShortTime = 500</br>
+After detection of a "short" press, this is the maximum time while waiting for an eventual second press in the series.
+
+- tc.maxIdleLongTime = 1000</br>
+After detection of a "long" press, this is the maximum time while waiting for an eventual second press in the series.
+
+    Results of testing: The pause between series containing a "short" event was noticibly shorter than the wait time between long-long.
+

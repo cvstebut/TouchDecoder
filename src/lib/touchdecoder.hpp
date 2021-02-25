@@ -290,7 +290,7 @@ public:
 class TouchDecoder
 {
 public:
-  TouchDecoder() : statemachine(state_machine{touchDecoderTimingConfig{10, 20, 30, 50, 50}})
+  TouchDecoder() : statemachine(state_machine{touchDecoderTimingConfig{30, 300, 300, 500, 1000}})
   {
     for (int i = 0; i < decoderwidth; i++)
     {

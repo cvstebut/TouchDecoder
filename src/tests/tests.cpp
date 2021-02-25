@@ -51,16 +51,14 @@ TEST_CASE("decoder - standard timing - release before min time")
   }
 }
 
-
-
 TEST_CASE("decoder - release before min time")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -80,11 +78,12 @@ TEST_CASE("decoder - release before min time")
 TEST_CASE("decoder - custom timing - release before min time")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 20,
-      tc.shortPressTime = 25,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -99,15 +98,15 @@ TEST_CASE("decoder - custom timing - release before min time")
   }
 }
 
-
 TEST_CASE("decoder - release within short time - next push after all timeouts expired")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -127,11 +126,12 @@ TEST_CASE("decoder - release within short time - next push after all timeouts ex
 TEST_CASE("decoder - release within long time - next push after all timeouts expired")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -148,15 +148,15 @@ TEST_CASE("decoder - release within long time - next push after all timeouts exp
   }
 }
 
-
 TEST_CASE("decoder - two short presses")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -166,7 +166,6 @@ TEST_CASE("decoder - two short presses")
 
   decoder.push(1, current += tc.maxIdleShortTime / 2);
   decoder.push(0, current += tc.shortPressTime - 1);
-
 
   SECTION("should fire double short press")
   {
@@ -179,15 +178,15 @@ TEST_CASE("decoder - two short presses")
   }
 }
 
-
 TEST_CASE("decoder - two long presses")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -197,7 +196,6 @@ TEST_CASE("decoder - two long presses")
 
   decoder.push(1, current += tc.maxIdleLongTime / 2);
   decoder.push(0, current += tc.longPressTime + 1);
-
 
   SECTION("should fire double short press")
   {
@@ -210,15 +208,15 @@ TEST_CASE("decoder - two long presses")
   }
 }
 
-
 TEST_CASE("decoder - one short, one long press")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -228,7 +226,6 @@ TEST_CASE("decoder - one short, one long press")
 
   decoder.push(1, current += tc.maxIdleLongTime / 2);
   decoder.push(0, current += tc.longPressTime + 1);
-
 
   SECTION("should fire shortLongPress")
   {
@@ -244,11 +241,12 @@ TEST_CASE("decoder - one short, one long press")
 TEST_CASE("decoder - one long, one short press")
 {
   touchDecoderTimingConfig tc{
-      tc.minReleaseTime = 10,
-      tc.shortPressTime = 20,
-      tc.longPressTime = 30,
-      tc.maxIdleShortTime = 50,
-      tc.maxIdleLongTime = 50};
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
   TouchDecoder decoder{tc};
 
   unsigned long current{};
@@ -258,7 +256,6 @@ TEST_CASE("decoder - one long, one short press")
 
   decoder.push(1, current += tc.maxIdleLongTime / 2);
   decoder.push(0, current += tc.shortPressTime - 1);
-
 
   SECTION("should fire longShortPress")
   {
