@@ -123,6 +123,32 @@ TEST_CASE("decoder - release within short time - next push after all timeouts ex
   }
 }
 
+TEST_CASE("decoder - release within short time - get shortPressTime")
+{
+  touchDecoderTimingConfig tc{
+      tc.minReleaseTime = 30,
+      tc.shortPressTime = 300,
+      tc.longPressTime = 300,
+      tc.maxIdleShortTime = 500,
+      tc.maxIdleLongTime = 1000};
+
+  TouchDecoder decoder{tc};
+
+  unsigned long current{};
+
+  decoder.push(0, 0);
+  decoder.push(1, current += tc.minReleaseTime + 1);
+  decoder.push(0, current += tc.shortPressTime - 1);
+  decoder.push(0, current += tc.maxIdleShortTime + 1);
+
+  SECTION("should fire short press")
+  {
+    REQUIRE(decoder.shortPress() == 1);
+    REQUIRE(decoder.longPress() == 0);
+    REQUIRE(decoder.shortPressTime()[0] == tc.shortPressTime -1);
+  }
+}
+
 TEST_CASE("decoder - release within long time - next push after all timeouts expired")
 {
   touchDecoderTimingConfig tc{

@@ -15,6 +15,8 @@ struct decoderOutput
   std::bitset<decoderwidth> doubleLongPress{};
   std::bitset<decoderwidth> shortLongPress{};
   std::bitset<decoderwidth> longShortPress{};
+
+  std::vector<unsigned long> shortPressTime = std::vector<unsigned long>(decoderwidth, 0);
 };
 
 struct touchDecoderTimingConfig
@@ -42,6 +44,7 @@ public:
   {
     unsigned long entry_time{};
     int keyid{};
+    unsigned long press_time{};
   };
 
   struct IdleLong
@@ -97,11 +100,12 @@ public:
       std::cout << "Key " << event.keyid << " - guard_min_touch_time (" << timeDiff << ") = " << timeout << std::endl;
       return timeout;
     };
-    auto guard_short_press_time = [this](const auto &event, Touched &state) {
+    auto guard_short_press_time = [this](const auto &event, decoderOutput &dcOutput, Touched &state, IdleShort &dstState) {
       bool result = false;
       unsigned long timeDiff = event.event_time - state.entry_time;
       if (timeDiff >= tc.minReleaseTime && timeDiff < tc.shortPressTime)
       {
+        dstState.press_time = timeDiff; 
         result = true;
       }
       std::cout << "Key " << event.keyid << " - guard_short_press_time (" << timeDiff << ") = " << result << std::endl;
@@ -229,6 +233,7 @@ public:
 
     const auto release_short_action = [](decoderOutput &dcOutput, IdleShort &state, const auto &event) {
       std::cout << "Key " << state.keyid << " - Transition due to release_short_action" << std::endl;
+      dcOutput.shortPressTime[state.keyid] = state.press_time;
       dcOutput.shortPress.set(state.keyid);
     };
 
@@ -371,6 +376,7 @@ public:
               << ", longShortPress: " << output.longShortPress
               << ", doubleLong: " << output.doubleLongPress
               << std::endl;
+    int j = 3;
   }
 
   std::bitset<decoderwidth> released()
@@ -381,6 +387,11 @@ public:
   std::bitset<decoderwidth> shortPress()
   {
     return output.shortPress;
+  }
+
+  std::vector<unsigned long> shortPressTime()
+  {
+    return output.shortPressTime;
   }
 
   std::bitset<decoderwidth> longPress()

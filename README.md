@@ -27,7 +27,8 @@ STATUS: Work in progress - still in early testing stage:
 - [-] REJECTED: Implement morse code
 - [x] Implement dependency of decoder width on single constant ```decoderwidth```
 - [x] Research and implement proper timing (e.g. timing double mouse click?)
-- [ ] Test decoder on ESP32
+- [ ] (optional) Implement configurable debug statements instead of hard coded ```cout << ``` statements
+- [x] Test decoder on ESP32
 - [ ] (optional) Publish library as a PlatformIO library 
 - [ ] tbd
 
